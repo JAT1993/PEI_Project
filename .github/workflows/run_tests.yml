@@ -24,7 +24,8 @@ jobs:
         run: |
           echo "🚀 Submitting test execution run to Databricks..."
           
-          RUN_ID=$(databricks runs submit --json '{
+          # 'jobs submit' handles both the submission and the blocking/wait automatically
+          databricks jobs submit --json '{
             "run_name": "GitHub Actions - PR Pytest Runner",
             "tasks": [
               {
