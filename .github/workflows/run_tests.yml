@@ -20,7 +20,7 @@
 #       - name: Run Pytest Suite on Databricks Cluster
 #         env:
 #           DATABRICKS_HOST: "https://dbc-06c31db1-c675.cloud.databricks.com"
-#           DATABRICKS_TOKEN: "862cc4e5c21a23a1f7c93d89ad684c01ae8a351c855e611af65bf81caba6b922"
+#           DATABRICKS_TOKEN: ""
 #           DATABRICKS_AUTH_TYPE: pat
 #         run: |
 #           echo "🚀 Submitting test execution run to Databricks..."
