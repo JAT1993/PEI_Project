@@ -19,7 +19,7 @@ jobs:
 
       - name: Run Pytest Suite on Databricks Cluster
         env:
-          DATABRICKS_HOST: ${{ secrets.DATABRICKS_HOST }}
+          DATABRICKS_HOST: "https://dbc-06c31db1-c675.cloud.databricks.com"
           DATABRICKS_TOKEN: ${{ secrets.DATABRICKS_TOKEN }}
           DATABRICKS_AUTH_TYPE: pat
         run: |
