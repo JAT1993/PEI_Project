@@ -1,35 +1,48 @@
-name: Data Pipeline Unit Tests
+name: Databricks Automated Test Runner
 
 on:
-  push:
-    branches: [ main ]
   pull_request:
-    branches: [ feature/pyspark_testv1 ]
+    branches:
+      - main
+    # Triggers specifically when PRs are opened or updated against main
+    types: [opened, synchronize, reopened]
 
 jobs:
-  test:
+  execute-pyspark-tests:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout repository code
-      uses: actions/checkout@v4
+      - name: Checkout Feature Branch Code
+        uses: actions/checkout@v4
 
-    - name: Set up Python Environment
-      uses: actions/setup-python@v5
-      with:
-        python-python-version: '3.10'
+      - name: Setup Databricks CLI
+        uses: databricks/setup-cli@v1
 
-    - name: Install Java (Required for PySpark)
-      uses: actions/setup-java@v4
-      with:
-        distribution: 'temurin'
-        java-version: '11'
-
-    - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        pip install -r requirements.txt
-
-    - name: Run PyTest Suite
-      run: |
-        python -m pytest tests/ -v
+      - name: Run Pytest Suite on Databricks Cluster
+        env:
+          DATABRICKS_HOST: ${{ secrets.DATABRICKS_HOST }}
+          DATABRICKS_TOKEN: ${{ secrets.DATABRICKS_TOKEN }}
+        run: |
+          echo "🚀 Submitting test execution run to Databricks..."
+          
+          # We use 'runs submit' to trigger a temporary execution task.
+          # Change "YOUR_EXISTING_CLUSTER_ID" to your running dev cluster ID to avoid waiting for a new VM to boot.
+          RUN_ID=$(databricks runs submit --json '{
+            "run_name": "GitHub Actions - PR Pytest Runner",
+            "tasks": [
+              {
+                "task_key": "pyspark_unit_tests",
+                "spark_python_task": {
+                  "python_file": "/Workspace/Users/jatin.march1993.arora@gmail.com/PEI_Project/Pyspark_Project/tests/test_analytics.py"
+                },
+                "existing_cluster_id": "YOUR_EXISTING_CLUSTER_ID"
+              }
+            ]
+          }' --query "run_id")
+          
+          echo "✅ Job submitted successfully. Run ID: $RUN_ID"
+          echo "📊 Monitoring execution logs live..."
+          
+          # This line blocks the GitHub Action pipeline and streams status updates.
+          # If pytest fails inside Databricks, this command exits with Code 1 and turns your PR red.
+          databricks runs wait $RUN_ID
