@@ -36,7 +36,7 @@ jobs:
                 "existing_cluster_id": "0614-123900-pt2yp3oi-v2n"
               }
             ]
-          }' --query "run_id")
+          }'
           
           echo "✅ Job submitted successfully. Run ID: $RUN_ID"
           echo "📊 Monitoring execution logs live..."
